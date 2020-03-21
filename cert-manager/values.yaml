@@ -1,0 +1,42 @@
+external-dns:
+  policy: upsert-only
+  provider: aws
+  sources:
+    - service
+    - ingress
+  serviceTypeFilter:
+    - LoadBalancer
+  aws:
+    zoneType: public
+    credentials:
+      accessKey: ""
+      secretKey: ""
+  zoneIdFilters:
+    - ""
+  domainFilters:
+    - ""
+
+cert-manager:
+  ingressShim:
+    defaultIssuerName: letsencrypt-prod
+    defaultIssuerKind: ClusterIssuer
+
+letsencrypt:
+  staging: true
+  email: ""
+
+nginx-ingress:
+  controller:
+    hostNetwork: true
+    replicaCount: 3
+    containerPort:
+      http: 80
+      https: 443
+    service:
+      targetPorts:
+        http: http
+        https: https
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: dev.cyril-sebastian.com
+        external-dns.alpha.kubernetes.io/ttl: "60"
+        service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
